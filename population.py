@@ -1,7 +1,7 @@
 import numpy as np
 
 def initializePopulationReal(dimension, lower, upper, initPopulation):
-    return (upper - lower)*(np.random.rand(dimension, initPopulation)) + lower
+    return (upper - lower)*(np.random.rand(initPopulation, dimension)) + lower
 
 def initializePopulationBin(dimension, initPopulation):
     return np.random.randint(0, 2, size=(initPopulation, dimension))
