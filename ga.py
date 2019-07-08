@@ -4,7 +4,8 @@ import crossover as c
 import evaluation as e
 import numpy as np
 
-initial = p.initializePopulationReal(10, -100e10, 100e10, 20)
+initial = p.initializePopulationReal(10, -100, 100, 20)
+initial = np.zeros(shape=(1, 10))
 
 aval = list()
 for j in initial:
