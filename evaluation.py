@@ -12,17 +12,15 @@ def rotatedHighConditionedElliptic(x, dim):
 # 2: Bent Cigar Function
 def bentCigar(x, dim):
     assert dim > 0    
-    return x[0]**2 + 1e6*np.sum(np.array(x[1:D])**2)
+    return x[0]**2 + 1e6*np.sum(np.array(x[1:dim])**2)
     
 # 3: Discus Function 
 def discus(x, dim):
     assert dim > 0    
-    return 1e6*x[0]**2 + np.sum(np.array(x[1:D])**2)
+    return 1e6*x[0]**2 + np.sum(np.array(x[1:dim])**2)
 
 # 6: Weierstrass Function
 # def weierstrass(x, dim, k_max=20, a=0.5, b=3):
-
-
 
     
 if __name__ == "__main__":
