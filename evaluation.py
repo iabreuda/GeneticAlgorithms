@@ -1,5 +1,47 @@
 import numpy as np
 
+# Auxiliary Functions
+
+def shiftVector(x, offset):
+    """ Offsets all elements of vector x by elements of vector offset """
+    assert len(x) == len(offset)
+    return x-offset
+
+def rotateVector(x, rotation):
+    x_rot = np.zeros(len(x))
+    for i in np.arange(len(x)):
+        for j, x_j in enumerate(x):
+            # xrot[i]=xrot[i]+x[j]*Mr[i*nx+j];
+            x_rot[i] += x_j*rotation[i*len(x)+j]
+            
+    return x_rot
+
+def shiftRotateVector(x, offset, rotation, shift_flag=True, rotate_flag=True, shift_rate=1): 
+    """ :param x (np.array): 
+        :param offset (np.array): 
+        :rotation (np.array): rotation matrix
+        :shift_flag (boolean): 
+        :rotate_flag (boolean): 
+        :shift_rate (float): 
+    """
+
+    if (shift_flag):   
+        x_shift = shiftVector(x, offset)
+        # Shrink to the original search space 
+        x_shrink = shift_rate*x_shift
+        if not rotate_flag:
+            return x_shrink
+        return rotateVector(x_shrink, rotation)        
+    
+    # Shrink to the original search space 
+    x_shrink = shift_rate*x    
+    if not rotate_flag:
+        return x_shrink
+    return shiftVector(x_shrink, rotation)
+    
+
+
+
 # 1: Rotated High Conditioned Elliptic Function 
 def rotatedHighConditionedElliptic(x, dim):
     assert dim > 0

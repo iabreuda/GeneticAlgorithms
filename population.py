@@ -10,7 +10,7 @@ def initializerPopulationInteger(dimension, lower, upper, initPopulation):
     return np.random.randint(lower, upper, size=(initPopulation, dimension))
 
 def main():
-    print(initializePopulationBin(5, 5))
+    print(initializePopulationReal(dimension=10, lower=-100, upper=100, initPopulation=2))
 
 if __name__ == "__main__":
     main()    
