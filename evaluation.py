@@ -2,21 +2,17 @@ import numpy as np
 
 # Auxiliary Functions
 
-def shiftVector(x, offset):
-    """ Offsets all elements of vector x by elements of vector offset """
-    assert len(x) == len(offset)
-    return x-offset
+def shiftVector(x, function_number):
+    """ Offsets all elements of vector x by elements of vector offset """    
+    offset = np.loadtxt('./input_data/shift_data_{}.txt'.format(function_number))[:len(x)]        
+    return np.array(x)-offset
 
-def rotateVector(x, rotation):
-    x_rot = np.zeros(len(x))
-    for i in np.arange(len(x)):
-        for j, x_j in enumerate(x):
-            # xrot[i]=xrot[i]+x[j]*Mr[i*nx+j];
-            x_rot[i] += x_j*rotation[i*len(x)+j]
-            
-    return x_rot
+def rotateVector(x, function_number):
+    """ Rotates the x function according to function_number file located in ./input_data/M_function_number_Ddim.txt"""    
+    rotation = np.loadtxt('./input_data/M_{}_D{}.txt'.format(function_number, len(x)))            
+    return np.array(x).dot(rotation)
 
-def shiftRotateVector(x, offset, rotation, shift_flag=True, rotate_flag=True, shift_rate=1): 
+def shiftRotateVector(x, function_number, shift_flag=True, rotate_flag=True, shift_rate=1): 
     """ :param x (np.array): 
         :param offset (np.array): 
         :rotation (np.array): rotation matrix
@@ -26,24 +22,23 @@ def shiftRotateVector(x, offset, rotation, shift_flag=True, rotate_flag=True, sh
     """
 
     if (shift_flag):   
-        x_shift = shiftVector(x, offset)
+        x_shift = shiftVector(x, function_number)
         # Shrink to the original search space 
         x_shrink = shift_rate*x_shift
         if not rotate_flag:
             return x_shrink
-        return rotateVector(x_shrink, rotation)        
+        return rotateVector(x_shrink, function_number)        
     
     # Shrink to the original search space 
     x_shrink = shift_rate*x    
     if not rotate_flag:
         return x_shrink
-    return shiftVector(x_shrink, rotation)
-    
+
+    return shiftVector(x_shrink, function_number)
 
 
-
-# 1: Rotated High Conditioned Elliptic Function 
-def rotatedHighConditionedElliptic(x, dim):
+# 1: High Conditioned Elliptic Function 
+def highConditionedElliptic(x, dim):
     assert dim > 0
     res = 0
     for i, x_i in enumerate(x):
@@ -73,7 +68,6 @@ def weierstrass(x, dim, a = .5, b=3, k_max=20):
         sum_b += (a**k)*np.cos(2*np.pi*(b**k)*0.5)
         
     return sum_a-dim*sum_b
-
 
 # 7: Griewank’s Function
 def griewank(x, dim):
