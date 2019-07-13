@@ -36,8 +36,23 @@ def shiftRotateVector(x, function_number, shift_flag=True, rotate_flag=True, shi
 
     return shiftVector(x_shrink, function_number)
 
+def getCecFunction(function_number):
+    switcher = {
+        1: rotatedHighConditionedElliptic,
+        2: rotatedBentCigar,
+        6: shiftedRotatedWeierstrass,
+        7: shiftedRotatedGriewank,
+        9: shiftedRotatedRastrigin,
+        14: shiftRotatedHGBat
+    }
+    return switcher.get(function_number, lambda: "Invalid function number: " + str(function_number))
+
 
 # 1: High Conditioned Elliptic Function 
+def rotatedHighConditionedElliptic(x, dim, function_number):
+    x_rot = rotateVector(x, function_number)
+    return highConditionedElliptic(x_rot, dim)
+
 def highConditionedElliptic(x, dim):
     assert dim > 0
     res = 0
@@ -47,6 +62,10 @@ def highConditionedElliptic(x, dim):
     return res 
 
 # 2: Bent Cigar Function
+def rotatedBentCigar(x, dim, function_number):
+    x_rot = rotateVector(x, function_number)
+    return bentCigar(x_rot, dim)
+
 def bentCigar(x, dim):
     assert dim > 0    
     return x[0]**2 + 1e6*np.sum(np.array(x[1:dim])**2)
@@ -57,6 +76,10 @@ def discus(x, dim):
     return 1e6*x[0]**2 + np.sum(np.array(x[1:dim])**2)
 
 # 6: Weierstrass Function
+def shiftedRotatedWeierstrass(x, dim, function_number, a = .5, b=3, k_max=20, shift_flag=True, rotate_flag=True, shift_rate=1):
+    x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
+    return weierstrass(x_shifted_rot, dim, a = .5, b=3, k_max=20)
+
 def weierstrass(x, dim, a = .5, b=3, k_max=20):
     assert dim > 0
     x = np.array(x[:dim])
@@ -70,6 +93,10 @@ def weierstrass(x, dim, a = .5, b=3, k_max=20):
     return sum_a-dim*sum_b
 
 # 7: Griewank’s Function
+def shiftedRotatedGriewank(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+    x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
+    return griewank(x_shifted_rot, dim)
+
 def griewank(x, dim):
     x = np.array(x[:dim])
     prod = 0
@@ -78,7 +105,21 @@ def griewank(x, dim):
 
     return 1/4000.0*np.sum((x**2))-prod+1
 
-# 9: Modified Schwefel’s Function
+# 9: Rastrigin's Function
+def shiftedRotatedRastrigin(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+    x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
+    return rastrigin(x_shifted_rot, dim)
+
+def rastrigin(x, dim):
+    assert dim > 0
+    x = np.array(x[:dim])
+    return np.sum(x**2-10*np.cos(2*np.pi*x)+10) 
+
+# 10: Schwefel's Function
+def shiftedRotatedSchwefel(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+    x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
+    return modifiedSchwefel(x_shifted_rot, dim)
+
 def modifiedSchwefel(x, dim):
     assert dim > 0
     x = np.array(x[:dim])    
@@ -95,8 +136,18 @@ def modifiedSchwefel(x, dim):
     
     return 418.9829*dim-res
 
+# 14: HGBat Function
+def shiftRotatedHGBat(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+    x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
+    return HGBat(x_shifted_rot, dim)
 
-# 14: Expanded Scaffer’s F6 Function
+def HGBat(x, dim):
+    assert dim > 0
+    x = np.array(x)[:dim]
+    return np.sqrt(np.sum(x**2)**2-np.sum(x)**2)+(0.5*np.sum(x**2)+np.sum(x))/dim + 0.5
+
+
+# 16: Expanded Scaffer’s F6 Function
 def expandedScafferF6(x, dim):
     assert dim > 0
     x = np.array(x[:dim])
@@ -112,7 +163,9 @@ if __name__ == "__main__":
     x = [0, 1, 0, 2]
     D = 4
 
-    print ('Rotated High Conditioned Elliptic:', rotatedHighConditionedElliptic(x, D))
+    print (getCecFunction(2))
+
+    print ('Rotated High Conditioned Elliptic:', highConditionedElliptic(x, D))
     print ('Bent Cigar Function:', bentCigar(x, D))
     print ('Discuss:', discus(x, D))
     print ('Weierstrass: ', weierstrass(x, D, a = .5, b=3, k_max=20))
