@@ -36,20 +36,21 @@ def shiftRotateVector(x, function_number, shift_flag=True, rotate_flag=True, shi
 
     return shiftVector(x_shrink, function_number)
 
-def getCecFunction(function_number):
+def cecFunction(function_number, x, dim):
+
     switcher = {
-        1: rotatedHighConditionedElliptic,
-        2: rotatedBentCigar,
-        6: shiftedRotatedWeierstrass,
-        7: shiftedRotatedGriewank,
-        9: shiftedRotatedRastrigin,
-        14: shiftRotatedHGBat
+        1: rotatedHighConditionedElliptic(x, dim),
+        2: rotatedBentCigar(x, dim),
+        6: shiftedRotatedWeierstrass(x, dim),
+        7: shiftedRotatedGriewank(x, dim),
+        9: shiftedRotatedRastrigin(x, dim),
+        14: shiftedRotatedHGBat(x, dim)
     }
     return switcher.get(function_number, lambda: "Invalid function number: " + str(function_number))
 
 
 # 1: High Conditioned Elliptic Function 
-def rotatedHighConditionedElliptic(x, dim, function_number):
+def rotatedHighConditionedElliptic(x, dim, function_number=1):
     x_rot = rotateVector(x, function_number)
     return highConditionedElliptic(x_rot, dim)
 
@@ -62,7 +63,7 @@ def highConditionedElliptic(x, dim):
     return res 
 
 # 2: Bent Cigar Function
-def rotatedBentCigar(x, dim, function_number):
+def rotatedBentCigar(x, dim, function_number=2):
     x_rot = rotateVector(x, function_number)
     return bentCigar(x_rot, dim)
 
@@ -76,7 +77,7 @@ def discus(x, dim):
     return 1e6*x[0]**2 + np.sum(np.array(x[1:dim])**2)
 
 # 6: Weierstrass Function
-def shiftedRotatedWeierstrass(x, dim, function_number, a = .5, b=3, k_max=20, shift_flag=True, rotate_flag=True, shift_rate=1):
+def shiftedRotatedWeierstrass(x, dim, function_number=6, a = .5, b=3, k_max=20, shift_flag=True, rotate_flag=True, shift_rate=1):
     x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
     return weierstrass(x_shifted_rot, dim, a = .5, b=3, k_max=20)
 
@@ -93,7 +94,7 @@ def weierstrass(x, dim, a = .5, b=3, k_max=20):
     return sum_a-dim*sum_b
 
 # 7: Griewank’s Function
-def shiftedRotatedGriewank(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+def shiftedRotatedGriewank(x, dim, function_number=7, shift_flag=True, rotate_flag=True, shift_rate=1):
     x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
     return griewank(x_shifted_rot, dim)
 
@@ -106,7 +107,7 @@ def griewank(x, dim):
     return 1/4000.0*np.sum((x**2))-prod+1
 
 # 9: Rastrigin's Function
-def shiftedRotatedRastrigin(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+def shiftedRotatedRastrigin(x, dim, function_number=9, shift_flag=True, rotate_flag=True, shift_rate=1):
     x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
     return rastrigin(x_shifted_rot, dim)
 
@@ -116,7 +117,7 @@ def rastrigin(x, dim):
     return np.sum(x**2-10*np.cos(2*np.pi*x)+10) 
 
 # 10: Schwefel's Function
-def shiftedRotatedSchwefel(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+def shiftedRotatedSchwefel(x, dim, function_number=10, shift_flag=True, rotate_flag=True, shift_rate=1):
     x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
     return modifiedSchwefel(x_shifted_rot, dim)
 
@@ -137,7 +138,7 @@ def modifiedSchwefel(x, dim):
     return 418.9829*dim-res
 
 # 14: HGBat Function
-def shiftRotatedHGBat(x, dim, function_number, shift_flag=True, rotate_flag=True, shift_rate=1):
+def shiftedRotatedHGBat(x, dim, function_number=14, shift_flag=True, rotate_flag=True, shift_rate=1):
     x_shifted_rot = shiftRotateVector(x, function_number, shift_flag=shift_flag, rotate_flag=rotate_flag, shift_rate=shift_rate)
     return HGBat(x_shifted_rot, dim)
 

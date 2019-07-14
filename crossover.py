@@ -1,6 +1,12 @@
 import numpy as np
 import population as p
 
+def makeCrossOver(parent1, parent2, method='onePointCrossOver', verbose=False):
+    if method.lower() == 'onepointcrossover':
+        return onePointCrossOver(parent1, parent2, verbose=verbose)
+    else: 
+        raise NotImplementedError
+
 def onePointCrossOver(parent1, parent2, verbose=False):    
     position = np.random.randint(1, parent1.shape[0])
     print ('Onepoint Crossover position: ', position) if verbose else None
