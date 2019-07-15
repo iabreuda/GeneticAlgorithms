@@ -2,17 +2,9 @@ import pygmo as pg
 
 class Evaluation:
 
-    def __init__(self, dimension, chromosome):
+    def __init__(self, dimension):
         self.dimension = dimension
-        self.chromosome = chromosome
         self.evaluationCounter = 0
-
-    def getChromosome(self):
-        return self.chromosome
-
-    def setChromosome(self, chromosome):
-
-        self.chromosome = chromosome
 
     def getDimension(self):
         return self.dimension
@@ -23,33 +15,33 @@ class Evaluation:
     def getNumberOfEvaluations(self):
         return self.evaluationCounter
 
-    def getFitness(self, problemID):
+    def getFitness(self, problemID, chromosome):
         self.evaluationCounter += 1
-        return pg.problem(pg.cec2014(problemID, self.dimension)).fitness(self.chromosome)
+        return pg.problem(pg.cec2014(problemID, self.dimension)).fitness(chromosome)
 
-    def rotatedHighConditionedElliptic(self):
-        return self.getFitness(1)
+    def rotatedHighConditionedElliptic(self, chromosome):
+        return self.getFitness(1, chromosome)
 
-    def rotatedBentCigar(self):
-        return self.getFitness(2)
+    def rotatedBentCigar(self, chromosome):
+        return self.getFitness(2, chromosome)
 
-    def shiftedRotatedWeierstrass(self):
-        return self.getFitness(6)
+    def shiftedRotatedWeierstrass(self, chromosome):
+        return self.getFitness(6, chromosome)
 
-    def shiftedRotatedGriewank(self):
-        return self.getFitness(7)
+    def shiftedRotatedGriewank(self, chromosome):
+        return self.getFitness(7, chromosome)
 
-    def shiftedRotatedRastrigin(self):
-        return self.getFitness(9)
+    def shiftedRotatedRastrigin(self, chromosome):
+        return self.getFitness(9, chromosome)
 
-    def shiftedRotatedHGBat(self):
-        return self.getFitness(14)
+    def shiftedRotatedHGBat(self, chromosome):
+        return self.getFitness(14, chromosome)
 
 
 if __name__ == "__main__":
     x = [0, 1]
     D = 2
-    p = Evaluation(D, x)
+    p = Evaluation(D)
 
-    print('Rotated High Conditioned Elliptic:', p.rotatedHighConditionedElliptic())
+    print('Rotated High Conditioned Elliptic:', p.rotatedHighConditionedElliptic(x))
     print('Evaluation Counters:', p.getNumberOfEvaluations())
