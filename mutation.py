@@ -1,58 +1,73 @@
 import numpy as np
-import population as p
 import math as m
 
 class Mutation:
+    """Mutation probability should be consider for each gene in a chromosome"""
 
-    def __init__(self, parent):
+    def __init__(self, parent, probability = 0.001):
         self.parent = parent
-        self.child = []
-        self.mutationGeneProbability = 0.001 #Default Probability for SGA
+        self.child = self.parent.copy()
+        self.children = []
+        self.mutationGeneProbability = probability #Default Probability for SGA is 0.001
 
     def setHesserMutationGeneProbability(self, chromosomeLenght, populationSize, generationCounter, alfa=1, beta=1, gama=1):
         self.mutationGeneProbability = (m.sqrt(alfa/beta)*
             (m.exp((-1*gama*generationCounter)/2)/
             populationSize*m.sqrt(chromosomeLenght)))
 
-    def getMutationGeneProbability(self, probability):
+    def setMutationGeneProbability(self, probability):
+        self.mutationGeneProbability = probability
+
+    def getMutationGeneProbability(self):
         return self.mutationGeneProbability
 
-    def uniformMutation(self, upper, lower):
-        self.child = self.parent
+    def addChild(self, child):
+        self.children.append(child)
+
+    def getChildren(self):
+        return self.children
+
+    def setParent(self, parent):
+        self.parent = parent
+
+    def getParent(self):
+        return self.parent
+
+    def uniformMutation(self, upperLimit, lowerLimit):
         for i in range(len(self.parent)):
             if (np.random.rand() < self.getMutationGeneProbability()):
-                self.child[i] = (upper - lower)*(np.random.rand()) + lower
-        return parent
+                self.child[i] = (upperLimit - lowerLimit)*(np.random.rand()) + lowerLimit
+        if (self.child != self.parent):
+            self.addChild(self.child)
 
-#Binary Representation
-def binaryMutation(parent, probability):
-    mutate = lambda x: 1-x if (np.random.rand() < probability) else x
-    return np.vectorize(mutate)(parent)
+    def swapMutation(self):
+        if (np.random.rand() < self.getMutationGeneProbability()):
+            pos1, pos2 = np.random.randint(len(self.child), size=2)
+            firstPosition, secondPosition = self.child[pos1], self.child[pos2]
+            self.child[pos1], self.child[pos2]  = secondPosition, firstPosition
+        if (self.child != self.parent):
+            self.addChild(self.child)
 
-#Integer Representation
-def integerRandomResetting(parent, probability, lower, upper):
-    mutate = lambda x: np.random.randint(lower, upper) if (np.random.rand() < probability) else x
-    return np.vectorize(mutate)(parent)
+    def nonUniformGaussianMutation(self, mean=0, deviation=1, lowerLimit=-100, upperLimit= 100):
+        for i in range(len(self.parent)):
+            if (np.random.rand() < self.getMutationGeneProbability()):
+                self.child[i] += np.random.normal(mean, deviation)
+                if (self.child[i] < lowerLimit):
+                    self.child[i] = lowerLimit
+                elif (self.child[i] > upperLimit):
+                    self.child[i] = upperLimit
+        if (self.child != self.parent):
+            self.addChild(self.child)
 
-#Validar se depois da soma os valores passaram os limites da populacao
-def creepMutation(parent, probability, lower, upper):
-    mutate = lambda x: x + np.random.randint(lower, upper) if (np.random.rand() < probability) else x
-    return np.vectorize(mutate)(parent)
-
-#Float Representation
-def uniformMutation(parent, probability, lower, upper):
-    for i in range(len(parent)):
-        if (np.random.rand() < probability):
-            parent[i] = (upper - lower)*(np.random.rand()) + lower
-    return parent
-
-def main():
-    arr = np.array([[1, 0], [0, 1]])
-    probability = .8
-    print ('Binary mutation (prob={}): \n{} \n>> \n{}'.format(probability, arr, binaryMutation(arr, probability)))
-    print ('Integer resetting (prob={}): \n{} \n>> \n{}'.format(probability, arr, integerRandomResetting(arr, probability, 0, 5)))
-    print(uniformMutation(p.initializePopulationReal(5, 0 ,5, 1), 0.5, 0, 5))
 
 if __name__ == "__main__":
-    main()
+    x = [1.7,2.9,-10,-87.5,16.9,50,-48.7,-34.61,74.7,99.9]
+    m = Mutation(x)
+    m.setMutationGeneProbability(0.8)
+    #m.uniformMutation(-100, 100)
+
+    m.nonUniformGaussianMutation()
+    print(m.getChildren())
+
+
 
