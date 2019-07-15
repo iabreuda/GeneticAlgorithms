@@ -5,7 +5,6 @@ import evaluation as e
 import numpy as np
 
 initial = p.initializePopulationReal(10, -100, 100, 20)
-initial = np.zeros(shape=(1, 10))
 
 aval = list()
 for j in initial:
@@ -13,7 +12,7 @@ for j in initial:
 
 arr = np.array(aval)
 
-for i in range (100000):
+for i in range (10000000):
     parent = initial[np.argsort(arr)[:3]]
 
     generation = list()
@@ -25,13 +24,13 @@ for i in range (100000):
                     generation.append(child1)
                     generation.append(child2)
         if (np.random.rand() < 0.2):
-            child3 = m.uniformMutation(p,0.2,-100e10, 100e10)
+            child3 = m.uniformMutation(p,0.2,-100, 100)
             generation.append(child3)
 
 
     for j in generation:
         initial = np.append(initial, [j], axis=0)
-        aval = np.append(aval, e.rotatedHighConditionedElliptic(j, 10))
+        aval = np.append(aval, e.bentCigar(j, 10))
 
     initial = initial[np.argsort(aval)[:20]]
     aval = aval[np.argsort(aval)[:20]]
