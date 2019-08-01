@@ -1,4 +1,5 @@
 import numpy as np
+import individual as i
 
 class Population:
 
@@ -7,6 +8,8 @@ class Population:
         self.lowerLimit = lowerLimit
         self.upperLimit = upperLimit
         self.initialPopulation = initialPopulation
+        self.population = []
+        self.setPopulation()
 
     def getDimension(self):
         return self.dimension
@@ -32,10 +35,18 @@ class Population:
     def setInitialPopulation(self, initialPopulation):
         self.initialPopulation = initialPopulation
 
-    def createPopulation(self):
-        return (self.getUpperLimit() - self.getLowerLimit())*(np.random.rand(self.initialPopulation, self.dimension)) + self.lowerLimit
+    def setPopulation(self):
+        population = (self.getUpperLimit() - self.getLowerLimit())*(np.random.rand(self.initialPopulation, self.dimension)) + self.lowerLimit
+        individuals = []
+        for chromosome in population:
+            individual = i.Individual(chromosome)
+            individuals.append(individual)
+        self.population = individuals
+
+    def getPopulation(self):
+        return self.population
 
 
 if __name__ == "__main__":
     pop = Population(dimension=10, lowerLimit=-100, upperLimit=100, initialPopulation=2)
-    print("Initial Population:\n", pop.createPopulation())
+    print("Initial Population:\n", pop.getPopulation())

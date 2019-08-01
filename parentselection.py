@@ -38,7 +38,7 @@ class ParentSelection:
         """
         if method.lower() == 'fitnessproportional':
             self.fitnessProportional()
-        if method.lower() == 'exponentialranking':
+        elif method.lower() == 'exponentialranking':
             self.exponentialRanking()
         else:
             raise NotImplementedError
@@ -81,9 +81,9 @@ class ParentSelection:
         """
         if method.lower() == 'roulettewheelselection':
             return self.rouletteWheelSelection()
-        if method.lower() == 'stochasticuniversalsamplingselection':
+        elif method.lower() == 'stochasticuniversalsamplingselection':
             return self.stochasticUniversalSamplingSelection()
-        if method.lower() == 'tournamentselection':
+        elif method.lower() == 'tournamentselection':
             return self.tournamentSelection(tournamentSize, tournamentProbability)
         else:
             raise NotImplementedError

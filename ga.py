@@ -1,46 +1,91 @@
-import population as p
-import mutation as m
-import crossover as c
-import evaluation as e
+import population as pop
+import mutation as mut
+import crossover as cross
+import evaluation as eva
+import parentselection as psel
+import survivorselection as ssel
+import individual as ind
 import numpy as np
 
-dimension = 10
-lowerLimit = -100
-upperLimit = 100
-initialSize = 2*dimension
-population = p.Population(dimension, lowerLimit, upperLimit, initialSize)
-initial = population.createPopulation()
+#Problem contstants
+DIMENSION = 10 #Problem dimension for this work is 10 or 30
+LOWERLIMIT = -100 #This is given by homework
+UPPERLIMIT = 100 #This is given by homework
+INITIALSIZE = 100 #Initial size of Population choosed by me
+STOPCRITERIA = 10000*DIMENSION #This is given by homework
+NUMBEROFPARENTS = INITIALSIZE/5 #This is the number of parents should be selected
+NUMBEROFCHILD = INITIALSIZE #Number of children generated to the next offspring
 
-evaluation = e.Evaluation(dimension)
+def evaluate(individuo, evaluation):
+    individuo.setFitness(
+        1 / evaluation.evaluate(
+            individuo.getChromosome(),
+            method="rotatedbentcigar"
+        )
+    )
 
-aval = list()
-for j in initial:
-    aval.append(evaluation.rotatedBentCigar(j))
+def getGenerationStatistics(generation, population):
+    best = 1 / max(population, key=lambda x: x.getFitness()).getFitness()
+    worst = 1 / min(population, key=lambda x: x.getFitness()).getFitness()
+    fitnessSum = 0
+    for individuo in population:
+        fitnessSum += 1 / individuo.getFitness()
+    avarage = fitnessSum/len(population)
+    return best, worst, avarage, generation
 
-arr = np.array(aval)
-parent = initial[np.argsort(arr, axis=0)[:3]]
+#Creating initial population
+population = pop.Population(DIMENSION, LOWERLIMIT, UPPERLIMIT, INITIALSIZE).getPopulation() #This is an list containing instance of Individual Object
 
-for i in range (10000):
-    parent = initial[np.argsort(arr, axis=0)[:3]]
-    generation = list()
-    crossover = c.Crossover(generation)
-    mutation = m.Mutation(generation)
-    mutation.setHesserMutationGeneProbability(dimension, initialSize, i)
+#Initialize evaluation class enabling evalutation counter
+evaluation = eva.Evaluation(DIMENSION)
 
-    for p in parent:
-        crossover.setFirstParent(p[0])
-        for d in parent:
-            crossover.setSecondParent(d[0])
-            if not np.array_equal(p,d):
-                if (np.random.rand() < crossover.getCrossoverProbability()):
-                    crossover.makeCrossOver()
-        mutation.setParent(p[0])
-        mutation.nonUniformGaussianMutation()
-    for j in generation:
-        initial = np.append(initial, [j], axis=0)
-        aval = np.append(aval, evaluation.rotatedBentCigar(j))
+for individuo in population:
+    #Define inverse Fitness for each individuo from initial population since this is a minimization problem
+    evaluate(individuo, evaluation)
 
-    initial = initial[np.argsort(aval)[:20]]
-    aval = aval[np.argsort(aval)[:20]]
+#Evaluate until reach the max number of evalutation
+generation = 1
+while (evaluation.getNumberOfEvaluations() < STOPCRITERIA):
+    best, worst, avarage, generation = getGenerationStatistics(generation, population)
+    print("Generation: ", generation)
+    print("Best Fitness: ", best)
+    print("Worst Fitness: ", worst)
+    print("Avarage: ", avarage)
+    print("------------EOG----------")
 
-print(aval[np.argsort(aval)[:1]])
+    offSpring = []
+    selectedParents = psel.ParentSelection(population, NUMBEROFPARENTS, method="fitnessproportional").select(method="tournamentselection")
+
+    while (len(offSpring) <= NUMBEROFCHILD):
+        #CrossOver
+        firstParent, secondParent = np.random.choice(selectedParents, 2)
+        firstChild, secondChild = cross.Crossover().crossOver(firstParent, secondParent, method="onePointCrossOver")
+        if (firstChild is not None):
+            firstChild = ind.Individual(firstChild, generation)
+            evaluate(firstChild, evaluation)
+            offSpring.append(firstParent)
+            offSpring.append(firstChild)
+        if (secondChild is not None):
+            secondChild = ind.Individual(secondChild, generation)
+            evaluate(secondChild, evaluation)
+            offSpring.append(secondParent)
+            offSpring.append(secondChild)
+        #Mutation
+        parent = np.random.choice(selectedParents)
+        child = mut.Mutation().mutate(parent, method="nonUniformGaussianMutation", deviation=(UPPERLIMIT-LOWERLIMIT)/40)
+        if (child is not None):
+            child = ind.Individual(child, generation)
+            evaluate(child, evaluation)
+            offSpring.append(parent)
+            offSpring.append(child)
+    selectedSurvivors = ssel.SurvivorSelection(offSpring, INITIALSIZE).survivors(method="fitnessBased")
+    population = selectedSurvivors
+    generation += 1 #Increment Generation
+    #if generation == 50:
+    #    break
+
+if __name__ == "__main__":
+    print("IGOR")
+    print("Number of Evaluation", evaluation.getNumberOfEvaluations())
+    for individuo in population:
+        print(1/individuo.getFitness())
