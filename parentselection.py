@@ -7,7 +7,7 @@ class ParentSelection:
         """This class is responsible to select parent to generate children for next generation
 
         Arguments:
-            population {Integer} -- [The whole population for this generation]
+            population {Array} -- [The whole population for this generation]
             numberOfParents {Integer} -- [Number of parents to be select in order to generate next offspring]
 
         Keyword Arguments:
@@ -66,7 +66,7 @@ class ParentSelection:
             individuo.setChoosedProbability(((1 - m.exp(-1*individual.getRank())) / (m.exp(1))) / self.totalFitness)
 
     def select(self, method='roulettewheelselection', tournamentSize = 3, tournamentProbability = 1):
-        """[summary]
+        """Choose de selection method to be used
 
         Keyword Arguments:
             method {str} -- Choosed Method (default: {'rouletewheelselection'})
@@ -113,7 +113,6 @@ class ParentSelection:
             [list] -- List of individuals responsible to next generation
         """
         r = (1/self.numberOfParents) * np.random.random()
-        print(r)
         while len(self.parents) < self.numberOfParents:
             cumulatedProbability = 0
             for individuo in self.population:

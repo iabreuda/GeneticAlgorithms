@@ -17,14 +17,25 @@ NUMBEROFPARENTS = INITIALSIZE/5 #This is the number of parents should be selecte
 NUMBEROFCHILD = INITIALSIZE #Number of children generated to the next offspring
 
 def evaluate(individuo, evaluation):
+    """Calculate fitness - The fitness was inverted to calculate min instead of max
+
+    Arguments:
+        individuo {[individual]} -- [Individual Object]
+        evaluation {[float]} -- [Fitness]
+    """
     individuo.setFitness(
         1 / evaluation.evaluate(
             individuo.getChromosome(),
-            method="rotatedbentcigar"
+            method="shiftedrotatedgriewank"
         )
     )
 
 def getGenerationStatistics(generation, population):
+    """Statistic information about genereation
+
+    Returns:
+        [floats] -- [Statistics]
+    """
     best = 1 / max(population, key=lambda x: x.getFitness()).getFitness()
     worst = 1 / min(population, key=lambda x: x.getFitness()).getFitness()
     fitnessSum = 0
@@ -54,12 +65,14 @@ while (evaluation.getNumberOfEvaluations() < STOPCRITERIA):
     print("------------EOG----------")
 
     offSpring = []
-    selectedParents = psel.ParentSelection(population, NUMBEROFPARENTS, method="fitnessproportional").select(method="tournamentselection")
+    #Select Parents
+    selectedParents = psel.ParentSelection(population, NUMBEROFPARENTS, method="fitnessProportional").select(method="tournamentSelection")
 
     while (len(offSpring) <= NUMBEROFCHILD):
         #CrossOver
         firstParent, secondParent = np.random.choice(selectedParents, 2)
-        firstChild, secondChild = cross.Crossover().crossOver(firstParent, secondParent, method="onePointCrossOver")
+        firstChild, secondChild = cross.Crossover().crossOver(firstParent, secondParent, method="wholeArithmeticRecombination")
+
         if (firstChild is not None):
             firstChild = ind.Individual(firstChild, generation)
             evaluate(firstChild, evaluation)
@@ -72,20 +85,13 @@ while (evaluation.getNumberOfEvaluations() < STOPCRITERIA):
             offSpring.append(secondChild)
         #Mutation
         parent = np.random.choice(selectedParents)
-        child = mut.Mutation().mutate(parent, method="nonUniformGaussianMutation", deviation=(UPPERLIMIT-LOWERLIMIT)/40)
+        child = mut.Mutation().mutate(parent, method="nonUniformGaussianMutation")
         if (child is not None):
             child = ind.Individual(child, generation)
             evaluate(child, evaluation)
             offSpring.append(parent)
             offSpring.append(child)
+    #Select Survivors
     selectedSurvivors = ssel.SurvivorSelection(offSpring, INITIALSIZE).survivors(method="fitnessBased")
     population = selectedSurvivors
     generation += 1 #Increment Generation
-    #if generation == 50:
-    #    break
-
-if __name__ == "__main__":
-    print("IGOR")
-    print("Number of Evaluation", evaluation.getNumberOfEvaluations())
-    for individuo in population:
-        print(1/individuo.getFitness())
