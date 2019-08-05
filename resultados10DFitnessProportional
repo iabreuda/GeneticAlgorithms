@@ -1,0 +1,29 @@
+F1  - rotatedhighconditionedelliptic
+Best:  74094896.35384133
+Worst:  746658926.1938208
+Avarage:  96515379.16828302
+
+F2 - rotatedBentCigar
+Best:  3347612254.1094413
+Worst:  4803267258.861781
+Avarage:  3405263599.8247113
+
+F6 - shiftedRotatedWeierstrass
+Best:  619.5794352319167
+Worst:  619.8243387082204
+Avarage:  619.813616183816
+
+F7 - shiftedRotatedGriewank
+Best:  890.1005783447059
+Worst:  907.0579609719454
+Avarage:  895.3649966654743
+
+F9 - shiftedRotatedRastrigin
+Best:  1113.7352175698047
+Worst:  1120.541081332078
+Avarage:  1115.2680950441195
+
+F14 - shiftedRotatedHGBat
+Best:  1557.9261126085808
+Worst:  1559.7599620794501
+Avarage:  1558.5575366211585

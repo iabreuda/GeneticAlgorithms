@@ -65,7 +65,7 @@ class ParentSelection:
         for individuo in self.population:
             individuo.setChoosedProbability(((1 - m.exp(-1*individual.getRank())) / (m.exp(1))) / self.totalFitness)
 
-    def select(self, method='roulettewheelselection', tournamentSize = 3, tournamentProbability = 1):
+    def select(self, method='roulettewheelselection', tournamentSize = 4, tournamentProbability = 1):
         """Choose de selection method to be used
 
         Keyword Arguments:
