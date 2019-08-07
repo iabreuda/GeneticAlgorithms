@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 #Problem contstants
-DIMENSION = 10 #Problem dimension for this work is 10 or 30
+DIMENSION = 2 #Problem dimension for this work is 10 or 30
 LOWERLIMIT = -100 #This is given by homework
 UPPERLIMIT = 100 #This is given by homework
 INITIALSIZE = 40 #Initial size of Population choosed by me
@@ -27,7 +27,7 @@ def evaluate(individuo, evaluation):
         evaluation {[float]} -- [Fitness]
     """
     individuo.setFitness(
-        1 / evaluation.evaluate(
+        -1*evaluation.evaluate(
             individuo.getChromosome(),
             method="shiftedRotatedHGBat"
         )
@@ -39,11 +39,11 @@ def getGenerationStatistics(generation, population):
     Returns:
         [floats] -- [Statistics]
     """
-    best = 1 / max(population, key=lambda x: x.getFitness()).getFitness()
-    worst = 1 / min(population, key=lambda x: x.getFitness()).getFitness()
+    best = -1*max(population, key=lambda x: x.getFitness()).getFitness()
+    worst = -1*min(population, key=lambda x: x.getFitness()).getFitness()
     fitnessSum = 0
     for individuo in population:
-        fitnessSum += 1 / individuo.getFitness()
+        fitnessSum += -1*individuo.getFitness()
     avarage = fitnessSum/len(population)
     return best, worst, avarage, generation
 
