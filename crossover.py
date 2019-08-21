@@ -3,7 +3,7 @@ import population as p
 
 class Crossover:
 
-    def __init__(self, probability=0.85):
+    def __init__(self, probability=0.8803):
         """Class responsible to recombine to parents and make to childs
 
         Keyword Arguments:
@@ -27,7 +27,7 @@ class Crossover:
         """
         return self.crossoverProbability
 
-    def crossOver(self, firstParent, secondParent, method='onePointCrossOver'):
+    def crossOver(self, firstParent, secondParent, thirdParent=None, base=None, factor = 1, method='onePointCrossOver'):
         """Generate two chromossomes from a parents recombination
 
         Arguments:
@@ -43,6 +43,8 @@ class Crossover:
         Returns:
             [Array] -- Chromossome array for the two childs
         """
+        if method.lower() == 'decrossover': #No needed to check probability before
+            return self.DECrossOver(firstParent, secondParent, thirdParent, base, factor)
         if (np.random.rand() > self.crossoverProbability):
             return None, None
         if method.lower() == 'onepointcrossover':
@@ -146,3 +148,12 @@ class Crossover:
                 (firstParent.getChromosome()[gene] + secondParent.getChromosome()[gene]) * (1 - multiplier)
             )
         return firstChild, secondChild
+
+    def DECrossOver(self, firstAgent, secondAgent, thirdAgent, base, factor):
+        newChromosome = base.getChromosome().copy()
+        chromosomeLen = len(base.getChromosome())
+        position = np.random.randint(chromosomeLen)
+        for gene in range(chromosomeLen):
+            if np.random.rand() < self.getCrossoverProbability() or gene == position:
+                newChromosome[gene] = firstAgent.getChromosome()[gene] + factor*(secondAgent.getChromosome()[gene] - thirdAgent.getChromosome()[gene])
+        return newChromosome
