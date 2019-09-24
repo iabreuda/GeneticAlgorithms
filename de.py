@@ -9,16 +9,17 @@ import numpy as np
 import pandas as pd
 
 #Problem contstants
-DIMENSION = 10 #Problem dimension for this work is 10 or 30
+DIMENSION = 30 #Problem dimension for this work is 10 or 30
 LOWERLIMIT = -100 #This is given by homework
 UPPERLIMIT = 100 #This is given by homework
-INITIALSIZE = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105] #Initial size of Population choosed by me
-FACTOR = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
-CO = [0.05, 0.1, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
+INITIALSIZE = 55 #Initial size of Population choosed by me
+MINIMUN = 100
+FACTOR = 0.5
+CO = 0.85
 STOPCRITERIA = 10000*DIMENSION #This is given by homework
 NUMBEROFPARENTS = 4 #This is the number of parents should be selected
 NUMBEROFCHILD = 1 #Number of children generated to the next offspring
-RUNS = 2
+RUNS = 51
 ERROR = 1e-8
 
 def evaluate(individuo, evaluation):
@@ -41,88 +42,151 @@ def getGenerationStatistics(generation, population):
     Returns:
         [floats] -- [Statistics]
     """
-    best = -1*max(population, key=lambda x: x.getFitness()).getFitness()
-    worst = -1*min(population, key=lambda x: x.getFitness()).getFitness()
-    fitnessSum = 0
+    fitness = []
     for individuo in population:
-        fitnessSum += -1*individuo.getFitness()
-    avarage = fitnessSum/len(population)
-    return best, worst, avarage, generation
+        fitness.append(-1*individuo.getFitness())
+    np_arr = np.array(fitness)
 
-file = open("de.csv","w")
-file.write("Population Size;CrossOver Rate;Fator;Best;Worst;Avarage\n")
+    best = np.amin(np_arr)
+    worst = np.amax(np_arr)
+    avarage = np.mean(np_arr)
+    worst = np.amax(np_arr)
+    median = np.median(np_arr)
+    std = np.std(np_arr)
 
-for popSize in INITIALSIZE:
-    for coRate in CO:
-        for weight in FACTOR:
-            print("Population: " + str(popSize) + "; CrossOver Rate: " + str(coRate) + "; Factor: " + str(weight))
-            runNumber = 1
-            genDf = {"best": [], "worst": [], "avarage": []}
-            lowestNumberOfGeneration = 1e10
-            numberOfGenerations = 1e10
+    return best, worst, avarage, generation, median, std
 
-            while runNumber <= RUNS:
-                print("Execution run number: ", runNumber)
-                #Creating initial population
-                population = pop.Population(DIMENSION, LOWERLIMIT, UPPERLIMIT, popSize).getPopulation() #This is an list containing instance of Individual Object
+file = open("DE_F1_Statistics_30.csv","w")
+file.write("Best;Worst;Avarage;Median;Std;SuccessRate\n")
+evol = open("DE_F1_GEN_30.csv","w")
+evol.write("0.0*MaxFES;0.001*MaxFES;0.01*MaxFES;0.1*MaxFES;0.2*MaxFES;0.3*MaxFES;0.4*MaxFES;0.5*MaxFES;0.6*MaxFES;0.7*MaxFES;0.8*MaxFES;0.9*MaxFES;1.0*MaxFES\n")
 
-                #Initialize evaluation class enabling evalutation counter
-                evaluation = eva.Evaluation(DIMENSION)
+runNumber = 1
+runDf = {"best": [], "worst": [], "avarage": [], "median": [], "std": []}
+genDf = {"best": [], "worst": [], "avarage": []}
+lastPop = []
+lowestNumberOfGeneration = 1e10
+numberOfGenerations = 1e10
+success = 0
 
-                for individuo in population:
-                    #Define inverse Fitness for each individuo from initial population since this is a minimization problem
-                    evaluate(individuo, evaluation)
+while runNumber <= RUNS:
+    print("Execution run number: ", runNumber)
+    testDf = {"best": [], "worst": [], "avarage": []}
+    bestConvergence = 0
+    worstConvergence = 0
+    meanConvergence = 0
+    #Creating initial population
+    population = pop.Population(DIMENSION, LOWERLIMIT, UPPERLIMIT, INITIALSIZE).getPopulation() #This is an list containing instance of Individual Object
 
-                #Evaluate until reach the max number of evalutation
-                generation = 1
+    #Initialize evaluation class enabling evalutation counter
+    evaluation = eva.Evaluation(DIMENSION)
 
-                while (evaluation.getNumberOfEvaluations() < STOPCRITERIA):
-                    best, worst, avarage, generation = getGenerationStatistics(generation, population)
-                    if (runNumber == 1):
-                        genDf['best'].append(best)
-                        genDf['worst'].append(worst)
-                        genDf['avarage'].append(avarage)
-                    elif (generation <= len(genDf['best'])):
-                        genDf['best'][generation-1] += best
-                        genDf['worst'][generation-1] += worst
-                        genDf['avarage'][generation-1] += avarage
+    for individuo in population:
+        #Define inverse Fitness for each individuo from initial population since this is a minimization problem
+        evaluate(individuo, evaluation)
 
-                    offSpring = []
-                    #Select Parents
-                    base, firstAgent, secondAgent, thirdAgent = np.random.choice(population, 4, replace=False)
-                    child = cross.Crossover(probability=coRate).crossOver(
-                        firstAgent,
-                        secondAgent,
-                        thirdAgent,
-                        base,
-                        factor=weight,
-                        method="DECrossOver"
-                    )
-                    child = ind.Individual(child, generation)
-                    evaluate(child, evaluation)
-                    if (base.getFitness() < child.getFitness()):
-                        population[population.index(base)] = child
-                    generation += 1 #Increment Generation
+    #Evaluate until reach the max number of evalutation
+    generation = 1
 
-                numberOfGenerations = generation
-                if (numberOfGenerations < lowestNumberOfGeneration):
-                    lowestNumberOfGeneration = numberOfGenerations
-                runNumber += 1
+    while (evaluation.getNumberOfEvaluations() < STOPCRITERIA):
+        best, worst, avarage, generation, median, std = getGenerationStatistics(generation, population)
+        testDf['best'].append(best)
+        testDf['worst'].append(worst)
+        testDf['avarage'].append(avarage)
+        """
+        if (generation > 10):
+            if (abs(testDf['best'][generation-2] - best) < ERROR):
+                bestConvergence += 1
+            else:
+                bestConvergence = 0
+            if (abs(testDf['worst'][generation-2] - worst) < ERROR):
+                worstConvergence += 1
+            else:
+                worstConvergence = 0
+            if (abs(testDf['avarage'][generation-2] - avarage) < ERROR):
+                meanConvergence += 1
+            else:
+                meanConvergence = 0
+        if (bestConvergence > 100 and worstConvergence > 100 and meanConvergence > 100):
+            print("Generation: " + str(generation) + " Best: " + str(bestConvergence) + " Worst: " + str(worstConvergence) + " Mean: " + str(meanConvergence))
+        """
+        if (runNumber == 1):
+            genDf['best'].append(best)
+            genDf['worst'].append(worst)
+            genDf['avarage'].append(avarage)
+        elif (generation <= len(genDf['best'])):
+            genDf['best'][generation-1] += best
+            genDf['worst'][generation-1] += worst
+            genDf['avarage'][generation-1] += avarage
 
-            del genDf['best'][lowestNumberOfGeneration-1:]
-            del genDf['worst'][lowestNumberOfGeneration-1:]
-            del genDf['avarage'][lowestNumberOfGeneration-1:]
+        offSpring = []
+        #Select Parents
+        base, firstAgent, secondAgent, thirdAgent = np.random.choice(population, 4, replace=False)
+        child = cross.Crossover(probability=CO).crossOver(
+            firstAgent,
+            secondAgent,
+            thirdAgent,
+            base,
+            factor=FACTOR,
+            method="DECrossOver"
+        )
+        child = ind.Individual(child, generation)
+        evaluate(child, evaluation)
+        if (base.getFitness() < child.getFitness()):
+            population[population.index(base)] = child
+        generation += 1 #Increment Generation
+    #This work just for last populaton in last generation
+    best, worst, avarage, generation, median, std = getGenerationStatistics(generation, population)
+    if (abs(best - MINIMUN) < ERROR):
+        success += 1
+    runDf['best'].append(best)
+    runDf['worst'].append(worst)
+    runDf['avarage'].append(avarage)
+    runDf['median'].append(median)
+    runDf['std'].append(std)
+    #create an array containing all last pop during the runs
+    for individuo in population:
+        lastPop.append(-1*individuo.getFitness())
 
-            genDf['best'][:] = [x / RUNS for x in genDf['best']]
-            genDf['worst'][:] = [x / RUNS for x in genDf['worst']]
-            genDf['avarage'][:] = [x / RUNS for x in genDf['avarage']]
-            file.write(str(popSize) + ";"  + str(coRate) + ";" + str(weight) + ";" + str(genDf['best'][-1]) + ";" + str(genDf['worst'][-1]) + ";" + str(genDf['avarage'][-1]) + "\n")
+    numberOfGenerations = generation
+    if (numberOfGenerations < lowestNumberOfGeneration):
+        lowestNumberOfGeneration = numberOfGenerations
+    runNumber += 1
+    evol.write(
+        str(testDf['best'][0]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.001)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.01)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.1)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.2)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.3)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.4)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.5)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.6)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.7)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.8)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()*0.9)]) + ";" +
+        str(testDf['best'][int(evaluation.getNumberOfEvaluations()-(INITIALSIZE+1))]) + ";\n")
+
+del genDf['best'][lowestNumberOfGeneration-1:]
+del genDf['worst'][lowestNumberOfGeneration-1:]
+del genDf['avarage'][lowestNumberOfGeneration-1:]
+
+np_lp = np.array(lastPop)
+best = np.amin(np_lp)
+worst = np.amax(np_lp)
+avarage = np.mean(np_lp)
+worst = np.amax(np_lp)
+median = np.median(np_lp)
+std = np.std(np_lp)
+successRate = (success/RUNS)*100
+
+file.write(str(best) + ";" + str(worst) + ";" + str(avarage) + ";" + str(median) + ";" + str(std) + ";" + str(successRate) + "\n")
 file.close()
 
-    #print("===== Statisitics for Initial Pop = ", popSize)
-    #print("Best: ", genDf['best'][-1])
-    #print("Worst: ", genDf['worst'][-1])
-    #print("Avarage: ", genDf['avarage'][-1])
-    #genDf = pd.DataFrame(genDf).plot.line(subplots=True)
-    #fig = genDf[0].get_figure()
-    #fig.savefig('best' + str(popSize) + '.png')
+"""
+genDf['best'][:] = [x / RUNS for x in genDf['best']]
+genDf['worst'][:] = [x / RUNS for x in genDf['worst']]
+genDf['avarage'][:] = [x / RUNS for x in genDf['avarage']]
+file.write(str(genDf['best'][-1]) + ";" + str(genDf['worst'][-1]) + ";" + str(genDf['avarage'][-1]) + "\n")
+file.close()
+"""
