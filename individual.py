@@ -18,6 +18,40 @@ class Individual:
         self.fitness = fitness
         self.rank = None
         self.choosedProbability = None
+        self.factor = None
+        self.crossProbability = None
+
+    def setFactor(self, factor):
+        """Define factor of the individuo creation
+
+        Arguments:
+            factor {[Integer]} -- [Number of individuo factor]
+        """
+        self.factor = factor
+
+    def getFactor(self):
+        """Get factor for this individuo
+
+        Returns:
+            [integer] -- [factor number like an year]
+        """
+        return self.factor
+
+    def setCrossProbability(self, crossProbability):
+        """Define crossProbability of the individuo creation
+
+        Arguments:
+            crossProbability {[Integer]} -- [Number of individuo crossProbability]
+        """
+        self.crossProbability = crossProbability
+
+    def getCrossProbability(self):
+        """Get crossProbability for this individuo
+
+        Returns:
+            [integer] -- [crossProbability number like an year]
+        """
+        return self.crossProbability
 
     def setGeneration(self, generation):
         """Define generation of the individuo creation
