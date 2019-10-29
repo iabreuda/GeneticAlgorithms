@@ -14,7 +14,7 @@ LOWERLIMIT = -100 #This is given by homework
 UPPERLIMIT = 100 #This is given by homework
 INITIALSIZE = 55 #Initial size of Population choosed by me
 MINIMUN = 100
-FACTOR = 1
+FACTOR = 0.5
 CO = 0.8
 STOPCRITERIA = 10000*DIMENSION #This is given by homework
 NUMBEROFPARENTS = 4 #This is the number of parents should be selected
@@ -56,9 +56,9 @@ def getGenerationStatistics(generation, population):
 
     return best, worst, avarage, generation, median, std
 
-file = open("DE_F1_Statistics_30_Mod_A.csv","w")
+file = open("DE_F1_Statistics_30.csv","w")
 file.write("Best;Worst;Avarage;Median;Std;SuccessRate\n")
-evol = open("DE_F1_GEN_30_Mod_A.csv","w")
+evol = open("DE_F1_GEN_30.csv","w")
 evol.write("0.0*MaxFES;0.001*MaxFES;0.01*MaxFES;0.1*MaxFES;0.2*MaxFES;0.3*MaxFES;0.4*MaxFES;0.5*MaxFES;0.6*MaxFES;0.7*MaxFES;0.8*MaxFES;0.9*MaxFES;1.0*MaxFES\n")
 
 runNumber = 1
@@ -100,16 +100,18 @@ while runNumber <= RUNS:
             secondAgent,
             thirdAgent,
             base,
-            factor=base.getFactor(),
+            factor=FACTOR,
             method="DECrossOver"
         )
         child = ind.Individual(child, generation)
         evaluate(child, evaluation)
         if (base.getFitness() < child.getFitness()):
+            """
             if (child.getFitness() < avarage):
                 child.setFactor(base.getFactor())
             else:
                 child.setFactor(np.random.uniform(low=0.1))
+            """
             population[population.index(base)] = child
         generation += 1 #Increment Generation
     #This work just for last populaton in last generation
