@@ -1,6 +1,3 @@
-import numpy as np
-import individual as i
-
 class Individual:
 
     def __init__(self, chromosome, generation = 0, fitness = 0):
@@ -99,7 +96,7 @@ class Individual:
         Returns:
             [float] -- [Cost of this individual]
         """
-        return self.fitness[0]
+        return self.fitness
 
     def setRank(self, rank):
         """set a Position of this individual related to other in a populaton
