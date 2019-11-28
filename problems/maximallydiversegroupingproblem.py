@@ -37,6 +37,40 @@ class MaximallyDiverseGroupingProblem(Problem):
         else:
             raise Exception("Groups cannot have same Index")
 
+    def balanceGroups(self):
+        balanced = False
+        while not balanced:
+            less = []
+            more = []
+            slightlyLess = []
+            slightlyMore = []
+
+            for group in self.groups:
+                if group.groupStatus() < 0:
+                    less.append(group)
+                elif group.groupStatus() > 0:
+                    more.append(group)
+                if group.groupStatus() == 0 and len(group.getElements()) >= group.getMinElements() + 1:
+                    slightlyMore.append(group)
+                if group.groupStatus() == 0 and len(group.getElements()) <= group.getMaxElements() - 1:
+                    slightlyLess.append(group)
+
+            if (not less) and (not more):
+                balanced =  True
+                break
+            if (more):
+                groupMore = np.random.choice(more)
+            else:
+                groupMore = np.random.choice(slightlyMore)
+            if (less):
+                groupLess = np.random.choice(less)
+            else:
+                groupLess = np.random.choice(slightlyLess)
+
+            element = np.random.choice(groupMore.getElements())
+            groupMore.removeElements(element)
+            groupLess.addElements(element)
+
     def populateGroups(self, chromosome):
         for group in self.groups:
             group.clearElements()
@@ -44,9 +78,7 @@ class MaximallyDiverseGroupingProblem(Problem):
             group = next((grp for grp in self.groups if grp.index == groupIndex), None)
             if (group is None):
                 raise Exception("Group could be not finded")
-            if (not group.addElements(element)):
-                return False
-        return True
+            group.addElements(element)
 
     def getElements(self):
         return self.elements
