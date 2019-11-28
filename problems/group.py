@@ -40,10 +40,19 @@ class Group():
         self.elements = elements
 
     def addElements(self, element):
-        if len(self.elements) >= self.maxElements:
-            return False
         self.elements.append(element)
-        return True
+
+    def removeElements(self, element):
+        self.elements.remove(element)
+
+    def groupStatus(self):
+        if (len(self.elements) >= self.minElements and len(self.elements) <= self.maxElements):
+            return 0
+        elif (len(self.elements) < self.minElements):
+            return len(self.elements) - self.minElements
+        elif (len(self.elements) > self.maxElements):
+            return len(self.elements) - self.maxElements
+        raise Exception("Unavailable Status")
 
     def clearElements(self):
         self.elements = []
