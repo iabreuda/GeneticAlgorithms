@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 import individual as i
 
 class Individual:
@@ -20,6 +21,7 @@ class Individual:
         self.choosedProbability = None
         self.factor = None
         self.crossProbability = None
+        self.groups = []
 
     def setFactor(self, factor):
         """Define factor of the individuo creation
@@ -133,3 +135,21 @@ class Individual:
             [float] -- [Probability to be selected]
         """
         return self.choosedProbability
+
+    def getGroups(self):
+        return self.groups
+
+    def setGroups(self, groups):
+        self.groups = groups
+
+    def clearGroups(self):
+        self.groups = []
+
+    def addGroup(self, group):
+        self.groups.append(group)
+
+    def removeGroup(self, group):
+        self.groups.remove(group)
+
+
+
