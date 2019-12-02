@@ -4,6 +4,7 @@ sys.path.append('..')
 from utils import validateInteger, validateList, validateMatrix
 import numpy as np
 from individual import Individual
+import copy
 
 
 class MaximallyDiverseGroupingProblem(Problem):
@@ -31,13 +32,20 @@ class MaximallyDiverseGroupingProblem(Problem):
     def setGroups(self, groups):
         self.groups = groups
 
+    def cloneGroups(self):
+        groups = []
+        for group in self.groups:
+            groups.append(copy.deepcopy(group))
+        return groups
+
+
     def addGroup(self, group):
         if next((g for g in self.groups if g.index == group.getIndex()), None) is None:
             self.groups.append(group)
         else:
             raise Exception("Groups cannot have same Index")
 
-    def balanceGroups(self):
+    def balanceGroups(self, individual):
         balanced = False
         while not balanced:
             less = []
@@ -45,7 +53,7 @@ class MaximallyDiverseGroupingProblem(Problem):
             slightlyLess = []
             slightlyMore = []
 
-            for group in self.groups:
+            for group in individual.getGroups():
                 if group.groupStatus() < 0:
                     less.append(group)
                 elif group.groupStatus() > 0:
@@ -69,16 +77,16 @@ class MaximallyDiverseGroupingProblem(Problem):
 
             element = np.random.choice(groupMore.getElements())
             groupMore.removeElements(element)
-            groupLess.addElements(element)
+            groupLess.addElement(element)
+            individual.getChromosome()[element] = groupLess.getIndex()
 
-    def populateGroups(self, chromosome):
-        for group in self.groups:
-            group.clearElements()
-        for element, groupIndex in enumerate(chromosome):
-            group = next((grp for grp in self.groups if grp.index == groupIndex), None)
+
+    def populateGroups(self, individual):
+        for element, groupIndex in enumerate(individual.getChromosome()):
+            group = next((grp for grp in individual.getGroups() if grp.index == groupIndex), None)
             if (group is None):
                 raise Exception("Group could be not finded")
-            group.addElements(element)
+            group.addElement(element)
 
     def getElements(self):
         return self.elements
@@ -96,9 +104,8 @@ class MaximallyDiverseGroupingProblem(Problem):
         return self.getDistanceMatrix()[origin][destiny]
 
     def evaluate(self, individual):
-        self.populateGroups(individual.getChromosome())
         totalFitness = 0
-        for group in self.groups:
+        for group in individual.getGroups():
             groupFitness = 0
             for origin in group.getElements():
                 for destiny in group.getElements():
@@ -114,5 +121,8 @@ class MaximallyDiverseGroupingProblem(Problem):
         population = np.random.randint(low=1, high=len(self.groups) + 1, size=(numberOfSolutions, self.elements))
         for chromosome in population:
             individual = Individual(chromosome)
+            individual.setGroups(self.cloneGroups())
+            self.populateGroups(individual)
+            self.balanceGroups(individual)
             individuals.append(individual)
         return individuals
