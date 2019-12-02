@@ -39,8 +39,11 @@ class Group():
         self.clearElements()
         self.elements = elements
 
-    def addElements(self, element):
+    def addElement(self, element):
         self.elements.append(element)
+
+    def addElements(self, elements):
+        self.elements += elements
 
     def removeElements(self, element):
         self.elements.remove(element)
