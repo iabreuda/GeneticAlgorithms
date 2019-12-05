@@ -38,7 +38,7 @@ class CrossOver(object):
         Returns:
             [float] -- Crossover probability
         """
-        return self.crossoverProbability
+        return self.crossOverProbability
 
     def make(self):
         raise NotImplementedError("This is an abstract method. Must be implemented in child class")
