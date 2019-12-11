@@ -7,6 +7,16 @@ class Problem(object):
             name {string} -- Name of the problem
         """
         self.name = name
+        self.evaluateCounter = 0
+
+    def incrementEvaluateCounter(self):
+        self.evaluateCounter += 1
+
+    def getEvaluateCounter(self):
+        return self.evaluateCounter
+
+    def setEvaluateCounter(self, evaluateCounter):
+        self.evaluateCounter = evaluateCounter
 
     def getName(self):
         return self.name
