@@ -8,54 +8,74 @@ from grouppoint import GroupPoint
 from groupswap import GroupSwap
 from tournament import Tournament
 from individual import Individual
+from population import Population
+from stats import Stats
 
 import timeit
 import numpy as np
 
 POPULATION = 30
 NUMBEROFCHILDS = 30
+RUNS = 20
+MAXTIME = 20
+files = ["instances/RanReal/RanReal_n240_ds_01.txt", "instances/RanReal/RanReal_n240_ds_02.txt",
+"instances/RanReal/RanReal_n240_ds_03.txt", "instances/RanReal/RanReal_n240_ds_04.txt",
+"instances/RanReal/RanReal_n240_ds_05.txt", "instances/RanReal/RanReal_n240_ds_06.txt",
+"instances/RanReal/RanReal_n240_ds_07.txt", "instances/RanReal/RanReal_n240_ds_08.txt",
+"instances/RanReal/RanReal_n240_ds_09.txt", "instances/RanReal/RanReal_n240_ds_10.txt"]
+for file in files:
+    print(file)
+    stats = Stats()
+    runCounter = 0
+    while (runCounter < RUNS):
+        runCounter += 1
+        start = timeit.default_timer()
+        problem = MDGPInstanceReader(file)
+        population = problem.initialSolution(POPULATION)
 
-start = timeit.default_timer()
+        for ind in population:
+            problem.evaluate(ind)
 
-problem = MDGPInstanceReader("instances/RanInt/RanInt_n120_ss_10.txt")
-population = problem.initialSolution(POPULATION)
+        generation = 0
+        stop = timeit.default_timer()
+        while (stop-start < MAXTIME):
+            pop = Population(population, generation)
+            #pop.getGenerationalStatistics()
+            generation += 1
+            offSpring = []
+            while (len(offSpring) < NUMBEROFCHILDS):
+                selectionMethod = Tournament(population, 2)
+                firstParent, secondParent = selectionMethod.select()
+                crossOver = GroupPoint(firstParent, secondParent)
+                if np.random.rand() < crossOver.getCrossoverProbability():
+                    crossChild = crossOver.make()
+                    problem.balanceGroups(crossChild)
+                    problem.evaluate(crossChild)
+                    offSpring.append(crossChild)
 
-stop = timeit.default_timer()
+                selectionMethod.setNumberOfSelections(1)
+                mutationParent = selectionMethod.select()
+                mutation = GroupSwap(mutationParent[0])
+                mutChild = mutation.make()
+                if mutChild is not None:
+                    problem.evaluate(mutChild)
+                    offSpring.append(mutChild)
+            nextGeneration  = offSpring + population
 
-for ind in population:
-    problem.evaluate(ind)
+            ##Only fitness care - Avoid Keep equal individups
+            for a in nextGeneration:
+                for b in nextGeneration:
+                    if (a != b and a.fitness == b.fitness):
+                        del nextGeneration[nextGeneration.index(b)]
 
-
-generation = 0
-
-while (generation < 10000):
-    generation += 1
-    offSpring = []
-    while (len(offSpring) < 30):
-        selectionMethod = Tournament(population, 2)
-        firstParent, secondParent = selectionMethod.select()
-        crossOver = GroupPoint(firstParent, secondParent)
-        if np.random.rand() < crossOver.getCrossoverProbability():
-            crossChild = crossOver.make()
-            problem.balanceGroups(crossChild)
-            problem.evaluate(crossChild)
-            offSpring.append(crossChild)
-
-        selectionMethod.setNumberOfSelections(1)
-        mutationParent = selectionMethod.select()
-        mutation = GroupSwap(mutationParent[0])
-        mutChild = mutation.make()
-        if mutChild is not None:
-            problem.evaluate(mutChild)
-            offSpring.append(mutChild)
-    nextGeneration  = offSpring + population
-    selectionMethod.setPopulation(nextGeneration)
-    selectionMethod.setNumberOfSelections(30)
-    population = selectionMethod.select()
-    for ind in population:
-        print("Fit:", ind.getFitness())
-        for grp in ind.getGroups():
-            print(grp.getIndex(), grp.getElements())
-    print("Generation: ", generation)
-timeInMinues = (stop-start)
-print('Time: ', timeInMinues)
+            selectionMethod.setPopulation(nextGeneration)
+            selectionMethod.setNumberOfSelections(POPULATION)
+            selectionMethod.setElitism(POPULATION/3)
+            population = selectionMethod.select()
+            selectionMethod.setElitism(0)
+            stop = timeit.default_timer()
+        timeInSeconds = (stop-start)
+        stats.addExecutionTime(timeInSeconds)
+        stats.addPopulation(population)
+        stats.addEvaluationCounter(problem.getEvaluateCounter())
+    stats.getStatistics()
