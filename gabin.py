@@ -17,12 +17,12 @@ import numpy as np
 POPULATION = 30
 NUMBEROFCHILDS = 30
 RUNS = 20
-MAXTIME = 20
-files = ["instances/RanReal/RanReal_n240_ds_01.txt", "instances/RanReal/RanReal_n240_ds_02.txt",
-"instances/RanReal/RanReal_n240_ds_03.txt", "instances/RanReal/RanReal_n240_ds_04.txt",
-"instances/RanReal/RanReal_n240_ds_05.txt", "instances/RanReal/RanReal_n240_ds_06.txt",
-"instances/RanReal/RanReal_n240_ds_07.txt", "instances/RanReal/RanReal_n240_ds_08.txt",
-"instances/RanReal/RanReal_n240_ds_09.txt", "instances/RanReal/RanReal_n240_ds_10.txt"]
+MAXTIME = 120
+files = ["instances/RanReal/RanReal_n480_ds_01.txt", "instances/RanReal/RanReal_n480_ds_02.txt",
+"instances/RanReal/RanReal_n480_ds_03.txt", "instances/RanReal/RanReal_n480_ds_04.txt",
+"instances/RanReal/RanReal_n480_ds_05.txt", "instances/RanReal/RanReal_n480_ds_06.txt",
+"instances/RanReal/RanReal_n480_ds_07.txt", "instances/RanReal/RanReal_n480_ds_08.txt",
+"instances/RanReal/RanReal_n480_ds_09.txt", "instances/RanReal/RanReal_n480_ds_10.txt"]
 for file in files:
     print(file)
     stats = Stats()
