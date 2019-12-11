@@ -104,6 +104,7 @@ class MaximallyDiverseGroupingProblem(Problem):
         return self.getDistanceMatrix()[origin][destiny]
 
     def evaluate(self, individual):
+        self.incrementEvaluateCounter()
         totalFitness = 0
         for group in individual.getGroups():
             groupFitness = 0
