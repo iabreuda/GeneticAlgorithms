@@ -39,7 +39,8 @@ for file in files:
         generation = 0
         stop = timeit.default_timer()
         while (stop-start < MAXTIME):
-            pop = Population(population, generation)
+            #Remove comments bellow if you want check convergence through generation
+            #pop = Population(population, generation)
             #pop.getGenerationalStatistics()
             generation += 1
             offSpring = []
