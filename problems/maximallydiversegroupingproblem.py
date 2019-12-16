@@ -5,6 +5,7 @@ from utils import validateInteger, validateList, validateMatrix
 import numpy as np
 from individual import Individual
 import copy
+import math
 
 
 class MaximallyDiverseGroupingProblem(Problem):
@@ -78,8 +79,8 @@ class MaximallyDiverseGroupingProblem(Problem):
             element = np.random.choice(groupMore.getElements())
             groupMore.removeElements(element)
             groupLess.addElement(element)
-            individual.getChromosome()[element] = groupLess.getIndex()
-
+            #individual.getChromosome()[element] = groupLess.getIndex()
+            individual.getChromosome()[element] = individual.getChromosome()[element] - int(individual.getChromosome()[element]) + groupLess.getIndex()
 
     def populateGroups(self, individual):
         for element, groupIndex in enumerate(individual.getChromosome()):
@@ -87,6 +88,47 @@ class MaximallyDiverseGroupingProblem(Problem):
             if (group is None):
                 raise Exception("Group could be not finded")
             group.addElement(element)
+
+    def populateRealGroups(self, individual):
+        for element, groupIndex in enumerate(individual.getChromosome()):
+            groupIndex = groupIndex % len(self.getGroups())
+            #IEDE
+            """
+            if np.random.rand() < groupIndex - int(groupIndex):
+                groupIndex = int(groupIndex)
+            else:
+                groupIndex = int(groupIndex) + 1
+            if groupIndex < 1 or groupIndex > len(self.getGroups()):
+                groupIndex = np.random.randint(1, len(self.getGroups()) + 1)
+            """
+            # SEDE
+            if groupIndex <= 0.5:
+                groupIndex = len(self.getGroups())
+            elif groupIndex - int(groupIndex) <= 0.5:
+                groupIndex = int(groupIndex)
+            else:
+                groupIndex = int(groupIndex) + 1
+            #SIGMOIDE
+            """
+            if groupIndex.is_integer():
+                groupIndex = int(groupIndex)
+                if groupIndex == 0:
+                    groupIndex = int(len(self.getGroups()))
+            else:
+                if np.random.rand() < self.sigmoid(groupIndex - int(groupIndex)):
+                    groupIndex = int(groupIndex)
+                    if groupIndex < 1:
+                        groupIndex = 1
+                else:
+                    groupIndex = int(groupIndex) + 1
+            """
+            group = next((grp for grp in individual.getGroups() if grp.index == groupIndex), None)
+            if (group is None):
+                raise Exception("Group could be not finded")
+            group.addElement(element)
+
+    def sigmoid(self, value):
+        return 1 / (1 + math.exp(-value))
 
     def getElements(self):
         return self.elements
