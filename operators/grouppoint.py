@@ -6,12 +6,22 @@ from group import Group
 from individual import Individual
 
 class GroupPoint(CrossOver):
-
     def __init__(self, firstParent, secondParent):
+        """Class that handle grossover for groups problems
+
+        Arguments:
+            firstParent {individual} -- first parent
+            secondParent {individual} -- second parent
+        """
         CrossOver.__init__(self, "Group Point CrossOver", firstParent, secondParent)
 
 
     def make(self):
+        """group crossover respecting hybridg GA crossover for group problems
+
+        Returns:
+            individual -- child generated after recombination
+        """
         numberOfGroups = np.random.randint(1, len(self.getFirstParent().getGroups()))
         secParentGroups = np.random.choice(self.secondParent.getGroups(), numberOfGroups, replace=False)
         groups = []

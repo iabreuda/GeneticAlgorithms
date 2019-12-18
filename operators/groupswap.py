@@ -7,12 +7,21 @@ from individual import Individual
 import copy
 
 class GroupSwap(Mutation):
-
     def __init__(self, parent):
+        """Class that handle mutation swap for group problem
+
+        Arguments:
+            parent {individual} -- indvidual to be mutated
+        """
         Mutation.__init__(self, "Swap Group Mutation", parent)
 
-
     def make(self):
+        """Realize swap mutation in a individual
+
+        Returns:
+            individual -- child generated after this mutation
+            None -- in case of individual be equal
+        """
         copiedGroups = []
         changes = False
         for group in self.parent.getGroups():
