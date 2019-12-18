@@ -1,103 +1,60 @@
 import numpy as np
-import individual as i
 
-class Population:
-
-    def __init__(self, dimension, lowerLimit, upperLimit, initialPopulation):
-        """Create a population sample
+class Population(object):
+    def __init__(self, individuals, generation):
+        """Class that handle population
 
         Arguments:
-            dimension {integer} -- [Number of problems dimension]
-            lowerLimit {float} -- [lower limit]
-            upperLimit {float} -- [Upper limit]
-            initialPopulation {integer} -- [Number of individuals in initial populaton]
+            individuals {array} -- Array containing individuals
+            generation {int} -- Generation number
         """
-        self.dimension = dimension
-        self.lowerLimit = lowerLimit
-        self.upperLimit = upperLimit
-        self.initialPopulation = initialPopulation
-        self.population = []
-        self.setPopulation()
+        self.individuals = individuals
+        self.generation = generation
 
-    def getDimension(self):
-        """Current number of dimensions
+    def getGeneration(self):
+        """get generation
 
         Returns:
-            [Integer] -- [Number of problem dimension]
+            int -- generation number
         """
-        return self.dimension
+        return self.generation
 
-    def setDimentison(self, dimension):
-        """Define a new number of dimensions
+    def setGeneration(self, generation):
+        """define generation number
 
         Arguments:
-            dimension {integer} -- [Number of elements in chromosome array]
+            generation {int} -- generation number
         """
-        self.dimension = dimension
+        self.generation = generation
 
-    def getLowerLimit(self):
-        """Get Inferior limit
+    def getIndividuals(self):
+        """all individuals in population
 
         Returns:
-            [float] -- inferior limit
+            array -- array containing individuals
         """
-        return self.lowerLimit
+        return self.individuals
 
-    def setLowerLimit(self, lowerLimit):
-        """Define a new lower limit
+    def setIndividuals(self, individuals):
+        """define population
 
         Arguments:
-            lowerLimit {float} -- [New lower limit]
+            individuals {array} -- array containing individuals
         """
-        self.lowerLimit = lowerLimit
+        self.individuals = individuals
 
-    def getUpperLimit(self):
-        """Get superior limit
-
-        Returns:
-            [float] -- superior limit
+    def getGenerationalStatistics(self):
+        """Print statistics for each generation
         """
-        return self.upperLimit
+        fitness = []
+        for individuo in self.individuals:
+            fitness.append(individuo.getFitness())
+        np_arr = np.array(fitness)
 
-    def setUpperLimit(self, upperLimit):
-        """Define a new upper limit
+        best = np.amax(np_arr)
+        avarage = np.mean(np_arr)
+        worst = np.amin(np_arr)
+        median = np.median(np_arr)
+        std = np.std(np_arr)
 
-        Arguments:
-            upperLimit {float} -- [New upper limit]
-        """
-        self.upperLimit = upperLimit
-
-    def getInitialPopulation(self):
-        """Get number of individuals in initial population
-
-        Returns:
-            [integer] -- number of individuals in initial population
-        """
-        return self.initialPopulation
-
-    def setInitialPopulation(self, initialPopulation):
-        """Define size of initial population
-
-        Arguments:
-            initialPopulation {integer} -- Size of initial population
-        """
-        self.initialPopulation = initialPopulation
-
-    def setPopulation(self):
-        """Create a random population using parameters of this class
-        """
-        population = (self.getUpperLimit() - self.getLowerLimit())*(np.random.rand(self.initialPopulation, self.dimension)) + self.lowerLimit
-        individuals = []
-        for chromosome in population:
-            individual = i.Individual(chromosome)
-            individuals.append(individual)
-        self.population = individuals
-
-    def getPopulation(self):
-        """Get a population
-
-        Returns:
-            [Array] -- Array of individuals
-        """
-        return self.population
-
+        print("Gen: ", self.generation, " Best: ", best, " Worst: ", worst, " Avg: ", avarage , " Median: ", median, " Std:", std)

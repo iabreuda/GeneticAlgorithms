@@ -1,5 +1,8 @@
-class Individual:
+import numpy as np
+import copy
+import individual as i
 
+class Individual:
     def __init__(self, chromosome, generation = 0, fitness = 0):
         """Class responsible to create a new individual
 
@@ -17,6 +20,7 @@ class Individual:
         self.choosedProbability = None
         self.factor = None
         self.crossProbability = None
+        self.groups = []
 
     def setFactor(self, factor):
         """Define factor of the individuo creation
@@ -130,3 +134,40 @@ class Individual:
             [float] -- [Probability to be selected]
         """
         return self.choosedProbability
+
+    def getGroups(self):
+        """get individual groups
+
+        Returns:
+            array -- Array containing all individuo groups
+        """
+        return self.groups
+
+    def setGroups(self, groups):
+        """define individual groups
+
+        Arguments:
+            groups {array} -- Array containing all individuo groups
+        """
+        self.groups = groups
+
+    def clearGroups(self):
+        """clean all groups
+        """
+        self.groups = []
+
+    def addGroup(self, group):
+        """add one group to list
+
+        Arguments:
+            group {group} -- group instance to be added
+        """
+        self.groups.append(group)
+
+    def removeGroup(self, group):
+        """removes one group from group list
+
+        Arguments:
+            group {group} -- group instance to be removed
+        """
+        self.groups.remove(group)
