@@ -6,6 +6,14 @@ from maximallydiversegroupingproblem import MaximallyDiverseGroupingProblem
 from group import Group
 
 def MDGPInstanceReader(path):
+    """Reader to instances files
+
+    Arguments:
+        path {string} -- instance configuration file
+
+    Returns:
+        MaximallyDiverseGroupingProblem -- Instance of MDGP problem
+    """
     with open(path) as f:
         lines = f.read().splitlines()
 
@@ -16,7 +24,7 @@ def MDGPInstanceReader(path):
 
     distanceMatrix = np.zeros(shape=(numberOfElements,numberOfElements)).tolist()
     for line in lines[1:]:
-            distanceMatrix[int(line[0])][int(line[1])] = float(line[2])
+        distanceMatrix[int(line[0])][int(line[1])] = float(line[2])
 
     groups = []
     for index in range(numberOfGroups):
