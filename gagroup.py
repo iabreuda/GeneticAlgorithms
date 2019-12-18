@@ -16,64 +16,62 @@ import numpy as np
 
 POPULATION = 30
 NUMBEROFCHILDS = 30
-RUNS = 20
-MAXTIME = 120
-files = ["instances/RanReal/RanReal_n480_ds_01.txt", "instances/RanReal/RanReal_n480_ds_02.txt",
-"instances/RanReal/RanReal_n480_ds_03.txt", "instances/RanReal/RanReal_n480_ds_04.txt",
-"instances/RanReal/RanReal_n480_ds_05.txt", "instances/RanReal/RanReal_n480_ds_06.txt",
-"instances/RanReal/RanReal_n480_ds_07.txt", "instances/RanReal/RanReal_n480_ds_08.txt",
-"instances/RanReal/RanReal_n480_ds_09.txt", "instances/RanReal/RanReal_n480_ds_10.txt"]
+RUNS = 1
+MAXTIME = 1500
+files = ["instances/Surpresa_2_120_ds_18dez.txt"] #instance files
+
 for file in files:
     print(file)
     stats = Stats()
     runCounter = 0
     while (runCounter < RUNS):
         runCounter += 1
-        start = timeit.default_timer()
-        problem = MDGPInstanceReader(file)
-        population = problem.initialSolution(POPULATION)
+        start = timeit.default_timer() # start time counter
+        problem = MDGPInstanceReader(file) # read instance
+        population = problem.initialSolution(POPULATION) #get initial solutions
 
-        for ind in population:
+        for ind in population: # evaluate initial solutions
             problem.evaluate(ind)
 
         generation = 0
         stop = timeit.default_timer()
-        while (stop-start < MAXTIME):
+        while (stop-start < MAXTIME): # Time stop criteria
             #Remove comments bellow if you want check convergence through generation
             #pop = Population(population, generation)
             #pop.getGenerationalStatistics()
             generation += 1
             offSpring = []
-            while (len(offSpring) < NUMBEROFCHILDS):
-                selectionMethod = Tournament(population, 2)
-                firstParent, secondParent = selectionMethod.select()
-                crossOver = GroupPoint(firstParent, secondParent)
-                if np.random.rand() < crossOver.getCrossoverProbability():
+            while (len(offSpring) < NUMBEROFCHILDS): #do it until reach number of childs that will make new generation
+                selectionMethod = Tournament(population, 2) # initialize selection method with 2 selection individuals
+                firstParent, secondParent = selectionMethod.select() #select 2 individuals
+                crossOver = GroupPoint(firstParent, secondParent) #crossover these 2 individuals
+                if np.random.rand() < crossOver.getCrossoverProbability(): # add childs to next generation with a probability
                     crossChild = crossOver.make()
-                    problem.balanceGroups(crossChild)
-                    problem.evaluate(crossChild)
-                    offSpring.append(crossChild)
+                    problem.balanceGroups(crossChild) #balance child to avoid invalid individuals
+                    problem.evaluate(crossChild) #get child fitness
+                    offSpring.append(crossChild) #add to next generation
 
-                selectionMethod.setNumberOfSelections(1)
-                mutationParent = selectionMethod.select()
+                selectionMethod.setNumberOfSelections(1) #change number off selection in torneio to be 1
+                mutationParent = selectionMethod.select() #select one individual
                 mutation = GroupSwap(mutationParent[0])
-                mutChild = mutation.make()
-                if mutChild is not None:
-                    problem.evaluate(mutChild)
-                    offSpring.append(mutChild)
-            nextGeneration  = offSpring + population
+                mutChild = mutation.make() #mutate this individual
+                if mutChild is not None: #only if child is different from parent
+                    problem.balanceGroups(mutChild) #balance child
+                    problem.evaluate(mutChild) #evaluate fitness
+                    offSpring.append(mutChild) #add to next generation
+            nextGeneration  = offSpring + population #merge atual population to next generation
 
-            ##Only fitness care - Avoid Keep equal individups
+            #Removes individuals with same fitness in order to keep diversity
             for a in nextGeneration:
                 for b in nextGeneration:
                     if (a != b and a.fitness == b.fitness):
                         del nextGeneration[nextGeneration.index(b)]
 
-            selectionMethod.setPopulation(nextGeneration)
-            selectionMethod.setNumberOfSelections(POPULATION)
-            selectionMethod.setElitism(POPULATION/3)
-            population = selectionMethod.select()
-            selectionMethod.setElitism(0)
+            selectionMethod.setPopulation(nextGeneration) #add new population to make selection
+            selectionMethod.setNumberOfSelections(POPULATION) #change number of selection to population size
+            selectionMethod.setElitism(POPULATION/3) #define elitism property in these selection to be 1/3 of pop size
+            population = selectionMethod.select() #create a new pop under this selection
+            selectionMethod.setElitism(0) #set elitism to zero
             stop = timeit.default_timer()
         timeInSeconds = (stop-start)
         stats.addExecutionTime(timeInSeconds)
