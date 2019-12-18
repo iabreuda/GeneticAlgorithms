@@ -7,6 +7,15 @@ import numpy as np
 class CEC2014(Problem):
 
     def __init__(self, dimension=10, lowerLimit=-100, upperLimit=100, initialPopulation=50):
+        """This class handle problems from CEC2014 competion it is used to test algoritmhs and isn't related with
+        group problem
+
+        Keyword Arguments:
+            dimension {int} -- number of problem's variable (default: {10})
+            lowerLimit {int} -- lower limit in search space (default: {-100})
+            upperLimit {int} -- upper limit in search space (default: {100})
+            initialPopulation {int} -- size of initial solutions (default: {50})
+        """
 
         self.dimension = dimension
         self.lowerLimit = lowerLimit
@@ -97,5 +106,10 @@ class CEC2014(Problem):
         return self.population
 
     def initialSolution(self):
+        """Initialize problem solutions
+
+        Returns:
+            array -- Array of individuals in initial solution
+        """
         self.setPopulation()
         return self.getPopulation()

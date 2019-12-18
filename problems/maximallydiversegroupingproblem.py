@@ -9,12 +9,13 @@ import math
 
 
 class MaximallyDiverseGroupingProblem(Problem):
-
     def __init__(self, groups, elements, distanceMatrix):
-        """This class is responsible to describe problem specification
+        """Class responsible to handle MDGP problem
 
         Arguments:
-            name {string} -- Name of the problem
+            groups {int} -- number of groups
+            elements {int} -- number of elements
+            distanceMatrix {array} -- matrix with vetice-vertice weights
         """
         Problem.__init__(self, "Maximally Diverse Grouping Problem")
 
@@ -28,12 +29,27 @@ class MaximallyDiverseGroupingProblem(Problem):
         self.distanceMatrix = distanceMatrix
 
     def getGroups(self):
+        """get all groups
+
+        Returns:
+            array -- array containig group information
+        """
         return self.groups
 
     def setGroups(self, groups):
+        """Add groups in run time
+
+        Arguments:
+            groups {array} -- array containing instances of group class
+        """
         self.groups = groups
 
     def cloneGroups(self):
+        """create a clone from a group to avoid change values, since group is passed as reference in python
+
+        Returns:
+            array -- array containing instances of group class
+        """
         groups = []
         for group in self.groups:
             groups.append(copy.deepcopy(group))
@@ -41,12 +57,25 @@ class MaximallyDiverseGroupingProblem(Problem):
 
 
     def addGroup(self, group):
+        """Add group int groups list
+
+        Arguments:
+            group {groups} -- group class instance
+
+        Raises:
+            Exception: same index as other group
+        """
         if next((g for g in self.groups if g.index == group.getIndex()), None) is None:
             self.groups.append(group)
         else:
             raise Exception("Groups cannot have same Index")
 
     def balanceGroups(self, individual):
+        """Fixes cases when groups pass their bounderies
+
+        Arguments:
+            individual {individual} -- individual class instance
+        """
         balanced = False
         while not balanced:
             less = []
@@ -79,10 +108,17 @@ class MaximallyDiverseGroupingProblem(Problem):
             element = np.random.choice(groupMore.getElements())
             groupMore.removeElements(element)
             groupLess.addElement(element)
-            #individual.getChromosome()[element] = groupLess.getIndex()
-            individual.getChromosome()[element] = individual.getChromosome()[element] - int(individual.getChromosome()[element]) + groupLess.getIndex()
+            individual.getChromosome()[element] = groupLess.getIndex()
 
     def populateGroups(self, individual):
+        """Populate groups with elements
+
+        Arguments:
+            individual {individual} -- individual class instance
+
+        Raises:
+            Exception: group didn't exist
+        """
         for element, groupIndex in enumerate(individual.getChromosome()):
             group = next((grp for grp in individual.getGroups() if grp.index == groupIndex), None)
             if (group is None):
@@ -90,62 +126,77 @@ class MaximallyDiverseGroupingProblem(Problem):
             group.addElement(element)
 
     def populateRealGroups(self, individual):
+        """Populate groups when using float numbers
+
+        Arguments:
+            individual {individual} -- individual class instance
+
+        Raises:
+            Exception: group didn't exist
+        """
         for element, groupIndex in enumerate(individual.getChromosome()):
             groupIndex = groupIndex % len(self.getGroups())
-            #IEDE
-            """
-            if np.random.rand() < groupIndex - int(groupIndex):
-                groupIndex = int(groupIndex)
-            else:
-                groupIndex = int(groupIndex) + 1
-            if groupIndex < 1 or groupIndex > len(self.getGroups()):
-                groupIndex = np.random.randint(1, len(self.getGroups()) + 1)
-            """
-            # SEDE
             if groupIndex <= 0.5:
                 groupIndex = len(self.getGroups())
             elif groupIndex - int(groupIndex) <= 0.5:
                 groupIndex = int(groupIndex)
             else:
                 groupIndex = int(groupIndex) + 1
-            #SIGMOIDE
-            """
-            if groupIndex.is_integer():
-                groupIndex = int(groupIndex)
-                if groupIndex == 0:
-                    groupIndex = int(len(self.getGroups()))
-            else:
-                if np.random.rand() < self.sigmoid(groupIndex - int(groupIndex)):
-                    groupIndex = int(groupIndex)
-                    if groupIndex < 1:
-                        groupIndex = 1
-                else:
-                    groupIndex = int(groupIndex) + 1
-            """
             group = next((grp for grp in individual.getGroups() if grp.index == groupIndex), None)
             if (group is None):
                 raise Exception("Group could be not finded")
             group.addElement(element)
 
-    def sigmoid(self, value):
-        return 1 / (1 + math.exp(-value))
-
     def getElements(self):
+        """get number of vertices
+
+        Returns:
+            int -- number of elements
+        """
         return self.elements
 
     def setElements(self, elements):
+        """set number of vertices
+
+        Arguments:
+            elements {int} -- number of vertices in the problem
+        """
         self.elements = elements
 
     def getDistanceMatrix(self):
+        """Get matrix values
+
+        Returns:
+            array -- full matrix used to calculate fitness
+        """
         return self.distanceMatrix
 
     def setDinstanceMatrix(self, distanceMatrix):
+        """Define matrix to calculate fitness
+
+        Arguments:
+            distanceMatrix {array} -- weights related to vertice formatted in a matrix
+        """
         self.distanceMatrix = distanceMatrix
 
     def getDistance(self, origin, destiny):
+        """Calculated fitness form origin to destiny
+
+        Arguments:
+            origin {int} -- origin vertice
+            destiny {int} -- destiny vertice
+
+        Returns:
+            float -- weight between two vertices
+        """
         return self.getDistanceMatrix()[origin][destiny]
 
     def evaluate(self, individual):
+        """Calculate fittness
+
+        Arguments:
+            individual {individual} -- solution to be calculated
+        """
         self.incrementEvaluateCounter()
         totalFitness = 0
         for group in individual.getGroups():
@@ -160,6 +211,14 @@ class MaximallyDiverseGroupingProblem(Problem):
         individual.setFitness(totalFitness)
 
     def initialSolution(self, numberOfSolutions):
+        """Create initial solutions
+
+        Arguments:
+            numberOfSolutions {int} -- Number of solutions to be created
+
+        Returns:
+            array -- Random solutions
+        """
         individuals = []
         population = np.random.randint(low=1, high=len(self.groups) + 1, size=(numberOfSolutions, self.elements))
         for chromosome in population:
