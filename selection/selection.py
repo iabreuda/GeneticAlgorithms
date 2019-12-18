@@ -1,14 +1,11 @@
 class Selection(object):
-
     def __init__(self, name, population, numberOfSelections):
-        """This class is responsible to select parent to generate children for next generation
+        """Base Class for selection methods
 
         Arguments:
-            population {Array} -- [The whole population for this generation]
-            numberOfParents {Integer} -- [Number of parents to be select in order to generate next offspring]
-
-        Keyword Arguments:
-            method {str} -- [Method to calculate normalized probability for each parent] (default: {'fitnessProportional'})
+            name {string} -- Method's name
+            population {array} -- Array with individuals
+            numberOfSelections {integer} -- Number of individuals to be selected
         """
         self.population = population
         self.name = name
@@ -17,15 +14,35 @@ class Selection(object):
         self.ranking()
 
     def getNumberOfSelections(self):
+        """Get number of selections
+
+        Returns:
+            integer -- Number of individuals to be selected
+        """
         return self.numberOfSelections
 
     def setNumberOfSelections(self, numberOfSelections):
+        """Changes number of selections in run time
+
+        Arguments:
+            numberOfSelections {integer} -- Number of individuals to be selected
+        """
         self.numberOfSelections = numberOfSelections
 
     def getPopulation(self):
+        """Get population array
+
+        Returns:
+            array -- List of all individuals in this population
+        """
         return self.population
 
     def setPopulation(self, population):
+        """Define a new population array
+
+        Arguments:
+            population {array} -- Change population in run time
+        """
         self.population = population
 
     def ranking(self):
@@ -36,4 +53,9 @@ class Selection(object):
             individuo.setRank(self.population.index(individuo) + 1)
 
     def select(self):
+        """Child class must implement this method
+
+        Raises:
+            NotImplementedError: When a child doesn't implement this method
+        """
         raise NotImplementedError("This is an abstract method. Must be implemented in child class")
